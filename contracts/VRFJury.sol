@@ -7,6 +7,7 @@ import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
 error VRFJury__AddressAlreadyAdded(address addr);
+error VRFJury__InvalidIndex(uint index);
 
 contract VRFJury is Ownable, VRFConsumerBaseV2 {
     address[] private potentialJurors;
@@ -41,11 +42,11 @@ contract VRFJury is Ownable, VRFConsumerBaseV2 {
 
     /**@dev This function allows the owner to add potential jurors to the potentialJurors array */
     function addCandidate(address addr) public onlyOwner {
-        if (isPotentialJuror[addr] == false) {
+        if (isPotentialJuror[addr] == true) {
+            revert VRFJury__AddressAlreadyAdded(addr);
+        } else {
             potentialJurors.push(addr);
             isPotentialJuror[addr] = true;
-        } else {
-            revert VRFJury__AddressAlreadyAdded(addr);
         }
     }
 
@@ -53,6 +54,9 @@ contract VRFJury is Ownable, VRFConsumerBaseV2 {
      *  - originally input was an `address` but its cheaper to loop through potentialJurors and find
      * index off-chain and then remove the address using the index */
     function removeCandidate(uint index) public onlyOwner {
+        if (potentialJurors.length <= index) {
+            revert VRFJury__InvalidIndex(index);
+        }
         potentialJurors[index] = potentialJurors[potentialJurors.length - 1];
         potentialJurors.pop();
     }
