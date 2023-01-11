@@ -15,4 +15,7 @@ module.exports = {
   namedAccounts: {
     deployer: 0,
   },
+  gasReporter: {
+    enabled: false,
+  },
 }

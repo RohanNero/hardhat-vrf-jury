@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.11;
 
+import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
@@ -27,6 +28,7 @@ contract VRFJury is Ownable, VRFConsumerBaseV2 {
         uint indexed counter,
         uint indexed requestId
     );
+    event RandomWordsRequested(uint requestId);
 
     constructor(
         address _vrfCoordinatorV2,
@@ -57,6 +59,7 @@ contract VRFJury is Ownable, VRFConsumerBaseV2 {
         if (potentialJurors.length <= index) {
             revert VRFJury__InvalidIndex(index);
         }
+        isPotentialJuror[potentialJurors[index]] = false;
         potentialJurors[index] = potentialJurors[potentialJurors.length - 1];
         potentialJurors.pop();
     }
@@ -68,13 +71,14 @@ contract VRFJury is Ownable, VRFConsumerBaseV2 {
         /**@dev custom error here to prevent accidentlly choosing wrong number of jurors? (more than 12/16)
          * I decided for now you have the freedom to make mistakes. Could build in a `safetyCap` that can be initialized inside constructor.
          * Then value check `amount` to ensure it's less than the `safetyCap`. */
-        i_VrfCoordinatorV2.requestRandomWords(
+        uint requestId = i_VrfCoordinatorV2.requestRandomWords(
             i_keyHash,
             i_subId,
             BLOCK_CONFIRMATIONS,
             i_callbackGasLimit,
             amount
         );
+        emit RandomWordsRequested(requestId);
     }
 
     /**@dev this uses the randomWords to select the addresses of the new jurors,
@@ -90,5 +94,40 @@ contract VRFJury is Ownable, VRFConsumerBaseV2 {
         }
         emit JurorsSelected(selectedJurors, _counter, requestId);
         _counter++;
+    }
+
+    /**@dev view/pure functions
+     * used mostly for unit testing */
+
+    function viewCoordinatorAddress() public view returns (address) {
+        return address(i_VrfCoordinatorV2);
+    }
+
+    function viewKeyHash() public view returns (bytes32) {
+        return i_keyHash;
+    }
+
+    function viewSubId() public view returns (uint64) {
+        return i_subId;
+    }
+
+    function viewCallbackGasLimit() public view returns (uint32) {
+        return i_callbackGasLimit;
+    }
+
+    function viewCounter() public view returns (uint24) {
+        return _counter;
+    }
+
+    function viewJurorAddress(uint index) public view returns (address) {
+        return potentialJurors[index];
+    }
+
+    function viewPotentialJurorsLength() public view returns (uint) {
+        return potentialJurors.length;
+    }
+
+    function viewJurorStatus(address addr) public view returns (bool) {
+        return isPotentialJuror[addr];
     }
 }

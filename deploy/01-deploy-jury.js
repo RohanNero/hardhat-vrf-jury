@@ -4,6 +4,8 @@ const {
   networkConfig,
 } = require("../helper-hardhat-config.js")
 
+const FUND_AMOUNT = "1000000000000000000000"
+
 module.exports = async ({ deployments, getNamedAccounts }) => {
   const { deployer } = await getNamedAccounts()
   const { deploy, log } = deployments
@@ -13,14 +15,21 @@ module.exports = async ({ deployments, getNamedAccounts }) => {
   if (developmentChains.includes(network.name)) {
     vrfCoordinator = await ethers.getContract("VRFCoordinatorV2Mock")
     vrfCoordinatorAddress = vrfCoordinator.address
+    const transactionResponse = await vrfCoordinator.createSubscription()
+    const transactionReceipt = await transactionResponse.wait()
+    subscriptionId = transactionReceipt.events[0].args.subId
+    // Fund the subscription
+    // Our mock makes it so we don't actually have to worry about sending fund
+    await vrfCoordinator.fundSubscription(subscriptionId, FUND_AMOUNT)
   } else {
     vrfCoordinatorAddress = networkConfig[chainId]["vrfCoordinator"]
+    subscriptionId = networkConfig[chainId]["subId"]
   }
 
   args = [
     vrfCoordinatorAddress,
     networkConfig[chainId]["keyHash"],
-    networkConfig[chainId]["subId"],
+    subscriptionId,
     networkConfig[chainId]["callbackGaslimit"],
   ]
 
