@@ -14,6 +14,7 @@ const { assert, expect } = require("chai")
         await deployments.fixture(["all"])
         vrfMock = await ethers.getContract("VRFCoordinatorV2Mock", deployer)
         jury = await ethers.getContract("VRFJury", deployer)
+        await vrfMock.addConsumer(1, jury.address)
       })
       describe("constructor", function () {
         it("sets vrfCoordinator address correctly", async function () {
@@ -29,7 +30,7 @@ const { assert, expect } = require("chai")
         })
         it("sets subId correctly", async function () {
           const val = await jury.viewSubId()
-          assert.equal(val, 1)
+          assert.equal(val.toString(), "1")
         })
         it("sets callbackGasLimit correctly ", async function () {
           const val = await jury.viewCallbackGasLimit()
@@ -49,7 +50,7 @@ const { assert, expect } = require("chai")
           const newVal = await jury.viewPotentialJurorsLength()
           assert.equal(val.add(1).toString(), newVal.toString())
         })
-        it("sets isPotentialJuror equal to true at given address", async function () {
+        it("sets jurorIndices equal to its potentialJuror", async function () {
           const val = await jury.viewJurorStatus(deployer.address)
           await jury.addCandidate(deployer.address)
           const newVal = await jury.viewJurorStatus(deployer.address)
@@ -91,8 +92,9 @@ const { assert, expect } = require("chai")
         it("", async function () {})
         it("calls the vrfCoordinatorV2 correctly", async function () {
           const subId = await jury.viewSubId()
+          //console.log(subId.toString())
           const val = await vrfMock.getSubscription(1)
-          await vrfMock.addConsumer(1, jury.address)
+          //console.log(val.toString())
           await expect(jury.selectJurors(1))
             .to.emit(jury, "RandomWordsRequested")
             .withArgs(1)
