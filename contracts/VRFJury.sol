@@ -11,6 +11,11 @@ error VRFJury__AddressAlreadyAdded(address addr);
 error VRFJury__InvalidIndex(uint index);
 error VRFJURY__AddressIsntPotentialJuror(address addr);
 
+/**
+ * @title VRF Jury
+ * @author Rohan Nero
+ * @notice this contract showcases a trustless alternative for the traditional jury selection process
+ */
 contract VRFJury is Ownable, VRFConsumerBaseV2 {
     /**
      * @dev this array would in theory be filled with addresses associated with different eligible jurors

@@ -3,6 +3,7 @@ const {
   developmentChains,
   networkConfig,
 } = require("../helper-hardhat-config.js")
+const { verify } = require("../utils/verify.js")
 
 const FUND_AMOUNT = "1000000000000000000000"
 
@@ -39,6 +40,11 @@ module.exports = async ({ deployments, getNamedAccounts }) => {
     log: true,
     args: args,
   })
+
+  if (!developmentChains.includes(network.name)) {
+    log("Verifying contract...")
+    await verify(jury.address, args)
+  }
 }
 
-module.exports.tags = ["all", "main"]
+module.exports.tags = ["all", "main", "jury"]

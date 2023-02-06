@@ -21,7 +21,7 @@ const networkConfig = {
     name: "mumbai",
     keyHash:
       "0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f",
-    subId: "",
+    subId: "3222",
     blockConfirmations: "5",
     callbackGaslimit: "500000",
     vrfCoordinator: "0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed",
@@ -30,7 +30,7 @@ const networkConfig = {
     name: "fuji",
     keyHash:
       "0x354d2f95da55398f44b7cff77da56283d9c6c829a4bdf1bbcaf2ad6a4d081f61",
-    subId: "",
+    subId: "550",
     blockConfirmations: "5",
     callbackGaslimit: "500000",
     vrfCoordinator: "0x2eD832Ba664535e5886b75D64C46EB9a228C2610",
